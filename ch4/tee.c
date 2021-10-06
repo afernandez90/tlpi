@@ -4,7 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define BUFFER_SIZE 512
+const size_t BUFFER_SIZE = 512;
 
 void usage_exit(const char* program_name) {
 	fprintf(stderr, "Usage: %s file [-a (append mode)]\n", program_name);

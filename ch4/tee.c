@@ -28,6 +28,11 @@ int main(int argc, char** argv) {
 		file_flags = O_APPEND;
 	}
 
+	// Check for unexpected arguments.
+    if (optind != argc - 1) {
+        usage_exit(argv[0]);
+    }
+
 	// Open file.
 	char* path = argv[optind];
 	int fd = open(path, 

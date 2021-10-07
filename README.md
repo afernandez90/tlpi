@@ -1,2 +1,2 @@
-# tlpi
-Implementation of exercises in The Linux Programming Interface book
+# Exercises from The Linux Programming Interface book
+Each folder corresponds to individual chapters.

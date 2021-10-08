@@ -19,7 +19,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-blksize_t blockSizeForIO(const char* path);
+blksize_t blockSizeForIO(int fd);
 void showUsageAndExit(const char* program_name);
 
 int main(int argc, char** argv) {
@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
   }
 
   // Allocate write buffer.
-  blksize_t buffer_size = blockSizeForIO(path);
+  blksize_t buffer_size = blockSizeForIO(fd);
   char* buffer = malloc(buffer_size);
   if (buffer == NULL) {
     perror("malloc");
@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
       exit(EXIT_FAILURE);
     }
     if (write(fd, buffer, bytes_read) == -1) {
-      fprintf(stderr, "write to %s: %s\n", path, strerror(errno));
+      fprintf(stderr, "failed to write to %s: %s\n", path, strerror(errno));
       exit(EXIT_FAILURE);
     }
   }
@@ -94,9 +94,9 @@ void showUsageAndExit(const char* program_name) {
   exit(EXIT_FAILURE);
 }
 
-blksize_t blockSizeForIO(const char* path) {
+blksize_t blockSizeForIO(int fd) {
   struct stat s;
-  if (stat(path, &s) == -1) {
+  if (fstat(fd, &s) == -1) {
     perror("stat");
     exit(EXIT_FAILURE);
   }

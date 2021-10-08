@@ -16,9 +16,9 @@
 
 void showUsageAndExit(const char* program_name);
 int openFile(const char* path, int flags);
-mode_t filePermissions(const char* path);
-void setPermissions(const char* path, mode_t mode);
-blksize_t blockSizeForIO(const char* path);
+mode_t filePermissions(int fd);
+void setPermissions(int fd, mode_t mode);
+blksize_t blockSizeForIO(int fd);
 void closeFileDescriptor(int fd);
 
 int main(int argc, char** argv) {
@@ -34,10 +34,10 @@ int main(int argc, char** argv) {
   // Create/truncate destination file and set the same permissions as the
   // source.
   int fd_dst = openFile(dst_path, O_CREAT | O_TRUNC | O_WRONLY);
-  setPermissions(dst_path, filePermissions(src_path));
+  setPermissions(fd_dst, filePermissions(fd_src));
 
   // Allocate write buffer.
-  blksize_t buffer_size = blockSizeForIO(dst_path);
+  blksize_t buffer_size = blockSizeForIO(fd_dst);
   char* buffer = malloc(buffer_size);
   if (buffer == NULL) {
     perror("malloc");
@@ -95,29 +95,29 @@ int openFile(const char* path, int flags) {
   }
 }
 
-void fileStatus(const char* path, struct stat* st_out) {
-  if (stat(path, st_out) == -1) {
+void fileStatus(int fd, struct stat* st_out) {
+  if (fstat(fd, st_out) == -1) {
     perror("stat");
     exit(EXIT_FAILURE);
   }
 }
 
-mode_t filePermissions(const char* path) {
+mode_t filePermissions(int fd) {
   struct stat s;
-  fileStatus(path, &s);
+  fileStatus(fd, &s);
   return s.st_mode;
 }
 
-void setPermissions(const char* path, mode_t mode) {
-  if (chmod(path, mode) == -1) {
+void setPermissions(int fd, mode_t mode) {
+  if (fchmod(fd, mode) == -1) {
     perror("chmod");
     exit(EXIT_FAILURE);
   }
 }
 
-blksize_t blockSizeForIO(const char* path) {
+blksize_t blockSizeForIO(int fd) {
   struct stat s;
-  fileStatus(path, &s);
+  fileStatus(fd, &s);
   return s.st_blksize;
 }
 
